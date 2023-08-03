@@ -17,8 +17,12 @@ public class Collection implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
     private Long id;
+
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
-    private Long game_id;
+
+    @OneToOne
+    @JoinColumn(name = "game_id")
+    private Game game;
 }
