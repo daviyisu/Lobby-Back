@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Set;
 
 @Getter
 @NoArgsConstructor
@@ -19,7 +20,12 @@ public class User implements Serializable {
     private Long id;
     private String username;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
-    private Collection collection;
+    @ManyToMany
+    @JoinTable(
+            name = "collection",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "game_id")
+    )
+    private Set<Game> gamesOwned;
 }
 

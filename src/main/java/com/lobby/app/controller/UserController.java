@@ -1,6 +1,7 @@
 package com.lobby.app.controller;
 
 
+import com.lobby.app.model.Game;
 import com.lobby.app.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import com.lobby.app.repository.UserRepository;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -25,20 +27,21 @@ public class UserController {
     @Autowired
     private final UserRepository userRepository;
 
-    @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id){
+    @GetMapping("/{user_id}")
+    public User getUserById( @PathVariable Long user_id ){
         User user_to_return = new User();
         Optional<User> optionalUser;
-        optionalUser = userRepository.findById(id);
+        assert userRepository != null;
+        optionalUser = userRepository.findById(user_id);
         if (optionalUser.isPresent()){
             user_to_return = optionalUser.get();
         }
         return user_to_return;
     }
 
-//    @GetMapping("/{id}")
-//    public User getUserByUsername(@PathVariable Long id){
-//
-//    }
-
+    @GetMapping("/{user_id}/games/all")
+    public Set<Game> getAllGames(@PathVariable Long user_id){
+        User user_to_return = getUserById(user_id);
+        return user_to_return.getGamesOwned();
+    }
 }

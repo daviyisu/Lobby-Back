@@ -25,7 +25,4 @@ public class Game implements Serializable {
     private String company;
     private Date release_date;
     private String platforms;
-
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "game")
-    private Collection collection;
 }
