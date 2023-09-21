@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.lobby.app.repository.UserRepository;
 
@@ -27,21 +28,46 @@ public class UserController {
     @Autowired
     private final UserRepository userRepository;
 
-    @GetMapping("/{user_id}")
-    public User getUserById( @PathVariable Long user_id ){
-        User user_to_return = new User();
+    @GetMapping("/{userId}")
+    public User getUserById( @PathVariable Long userId ){
         Optional<User> optionalUser;
         assert userRepository != null;
-        optionalUser = userRepository.findById(user_id);
+        optionalUser = userRepository.findById(userId);
+        User userToReturn = new User();
         if (optionalUser.isPresent()){
-            user_to_return = optionalUser.get();
+            userToReturn = optionalUser.get();
         }
-        return user_to_return;
+        return userToReturn;
     }
 
-    @GetMapping("/{user_id}/games/all")
-    public Set<Game> getAllGames(@PathVariable Long user_id){
-        User user_to_return = getUserById(user_id);
-        return user_to_return.getGamesOwned();
+    @GetMapping("/getbyusername/{username}")
+    public User getUserByUsername( @PathVariable String username ) {
+        Optional<User> optionalUser;
+        assert userRepository != null;
+        optionalUser = userRepository.findUserByUsername(username);
+        User userToReturn = new User();
+        if (optionalUser.isPresent()){
+            userToReturn = optionalUser.get();
+        }
+        return userToReturn;
     }
+
+    @GetMapping("/{userId}/games/all")
+    public Set<Game> getAllGamesOwned(@PathVariable Long userId){
+        User userToReturn = getUserById(userId);
+        return userToReturn.getGamesOwned();
+    }
+
+    @PostMapping("/adduser")
+    public ResponseEntity<User> addUser( @RequestBody User newUser){
+        assert this.userRepository != null;
+        if(this.userRepository.findUserByUsername(newUser.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().build();
+        }
+        this.userRepository.save(newUser);
+        return ResponseEntity.ok(newUser);
+    }
+
+
+
 }
