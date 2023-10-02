@@ -1,2 +1,2 @@
 # Lobby
-Web app for a social network for gamers
+API for Lobby, the web app for tracking your videogame collection.

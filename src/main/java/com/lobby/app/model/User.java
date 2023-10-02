@@ -19,6 +19,7 @@ public class User implements Serializable {
     @Column(nullable = false, updatable = false)
     private Long id;
     private String username;
+    private Long steamId;
 
     @ManyToMany
     @JoinTable(
