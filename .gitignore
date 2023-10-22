@@ -33,4 +33,4 @@ build/
 .vscode/
 
 ### Keys ###
-src/main/java/com/config/Key.java
+src/main/java/com/config/
