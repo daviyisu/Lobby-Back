@@ -1,5 +1,6 @@
 package com.lobby.app.controller;
 
+import com.lobby.app.config.Key;
 import com.lobby.app.model.Game;
 import com.lobby.app.repository.GameRepository;
 import com.lobby.app.repository.UserRepository;
@@ -27,7 +28,9 @@ public class GameController {
 
     private final String steamApiBase = "https://api.steampowered.com";
 
-    private final String steamApiKey = ""; //IDK HOW TO HIDE IT YET
+    private final String steamUrlBase = "https://store.steampowered.com/app/";
+
+    private final String steamApiKey = Key.steamApiKey;
 
     private final WebClient.Builder webClientBuilder;
 
