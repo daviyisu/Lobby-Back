@@ -1,5 +1,8 @@
 package com.lobby.app.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lobby.app.config.Key;
 import com.lobby.app.model.Game;
 import com.lobby.app.repository.GameRepository;
@@ -10,8 +13,12 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Setter
@@ -28,6 +35,8 @@ public class GameController {
 
     private final String steamApiBase = "https://api.steampowered.com";
 
+    private final String igdbApiBase = "https://api.igdb.com/v4/";
+
     private final String steamUrlBase = "https://store.steampowered.com/app/";
 
     private final String steamApiKey = Key.steamApiKey;
@@ -42,6 +51,50 @@ public class GameController {
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
         this.webClientBuilder = webClientBuilder;
+    }
+
+    private List<Integer> getSteamAppIds(Long userSteamId) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        assert webClientBuilder != null;
+        String jsonResponse = webClientBuilder.build()
+                .get()
+                .uri(this.steamApiBase + "/IPlayerService/GetOwnedGames/v0001/?key="
+                        + this.steamApiKey
+                        + "&steamid="+userSteamId
+                        +"&include_appinfo=true&format=json")
+                .retrieve().bodyToMono(String.class).block();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+        List<Integer> result = new ArrayList<>();
+        JsonNode gamesArray = jsonNode.get("response").get("games");
+        for (int i=0; i<gamesArray.size(); i++) {
+            result.add(gamesArray.get(i).get("appid").asInt());
+        }
+        return result;
+    }
+
+    private List<Integer> getIgdbGamesIdsFromSteam(List<Integer> steamAppIds) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        assert webClientBuilder != null;
+        StringBuilder requestBody = new StringBuilder("fields game; where url=\"https://store.steampowered.com/app/" + steamAppIds.get(0).toString() + "\"");
+        if(steamAppIds.size() > 1) {
+            for (int i=1; i<steamAppIds.size(); i++) {
+                requestBody.append(" | url=\"https://store.steampowered.com/app/").append(steamAppIds.get(i).toString()).append("\"");
+            }
+        }
+       requestBody.append(";");
+        String jsonResponse = webClientBuilder.build()
+                .post()
+                .uri(this.igdbApiBase + "/websites")
+                .header("Client-ID", Key.clientId)
+                .header("Authorization", "Bearer " + Key.accessToken)
+                .body(BodyInserters.fromValue(requestBody.toString()))
+                .retrieve().bodyToMono(String.class).block();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+        List<Integer> result = new ArrayList<>();
+        for(int i=0; i<jsonNode.size(); i++) {
+            result.add(jsonNode.get(i).get("game").asInt());
+        }
+        return result;
     }
 
     @GetMapping("/{id}")
@@ -63,16 +116,14 @@ public class GameController {
         return ResponseEntity.ok(newGame);
     }
 
+    /*
+    Extract all Steam appIds from a user Steam library
+    */
     @GetMapping("/steamgames/{userSteamId}")
-    public String getSteamGames(@PathVariable Long userSteamId) {
-        assert webClientBuilder != null;
-        return webClientBuilder.build()
-                .get()
-                .uri(this.steamApiBase + "/IPlayerService/GetOwnedGames/v0001/?key="
-                        + this.steamApiKey
-                        + "&steamid="+userSteamId
-                        +"&include_appinfo=true&format=json")
-                .retrieve().bodyToMono(String.class).block();
+    public List<Integer> getSteamGames(@PathVariable Long userSteamId) throws JsonProcessingException {
+        List<Integer> steamAppIds = this.getSteamAppIds(userSteamId);
+        return this.getIgdbGamesIdsFromSteam(steamAppIds);
+
     }
 
 }
