@@ -81,7 +81,7 @@ public class GameController {
                 requestBody.append(" | url=\"https://store.steampowered.com/app/").append(steamAppIds.get(i).toString()).append("\"");
             }
         }
-       requestBody.append(";");
+       requestBody.append("; limit 500;");
         String jsonResponse = webClientBuilder.build()
                 .post()
                 .uri(this.igdbApiBase + "/websites")
@@ -123,7 +123,6 @@ public class GameController {
     public List<Integer> getSteamGames(@PathVariable Long userSteamId) throws JsonProcessingException {
         List<Integer> steamAppIds = this.getSteamAppIds(userSteamId);
         return this.getIgdbGamesIdsFromSteam(steamAppIds);
-
     }
 
 }
