@@ -53,6 +53,9 @@ public class GameController {
         this.webClientBuilder = webClientBuilder;
     }
 
+    /*
+    Extract a list of Steam IDs games list given a Steam user ID
+    */
     private List<Integer> getSteamAppIds(Long userSteamId) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         assert webClientBuilder != null;
@@ -72,6 +75,9 @@ public class GameController {
         return result;
     }
 
+    /*
+    Extract a list of the equivalent IGDB games IDs from a Steam IDs games list
+    */
     private List<Integer> getIgdbGamesIdsFromSteam(List<Integer> steamAppIds) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         assert webClientBuilder != null;
@@ -117,7 +123,7 @@ public class GameController {
     }
 
     /*
-    Extract all Steam appIds from a user Steam library
+    Returns a list of IGDB IDs games list given a Steam user ID
     */
     @GetMapping("/steamgames/{userSteamId}")
     public List<Integer> getSteamGames(@PathVariable Long userSteamId) throws JsonProcessingException {
@@ -125,4 +131,28 @@ public class GameController {
         return this.getIgdbGamesIdsFromSteam(steamAppIds);
     }
 
+
+    /*
+    ALGUN DIA USARE ESTO
+    StringBuilder requestBody = new StringBuilder("fields name; where id=").append(igdbGamesIds.get(0));
+        if (igdbGamesIds.size() > 1) {
+            for (int i = 1; i < igdbGamesIds.size(); i++) {
+                requestBody.append(" | id=").append(igdbGamesIds.get(i).toString());
+            }
+        }
+        requestBody.append("; limit 500;");
+        String jsonResponse = webClientBuilder.build()
+                .post()
+                .uri(this.igdbApiBase + "/games")
+                .header("Client-ID", Key.clientId)
+                .header("Authorization", "Bearer " + Key.accessToken)
+                .body(BodyInserters.fromValue(requestBody.toString()))
+                .retrieve().bodyToMono(String.class).block();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < jsonNode.size(); i++) {
+            result.add(jsonNode.get(i).get("name").toString());
+        }
+        return result;
+    * */
 }
