@@ -104,7 +104,7 @@ public class GameController {
     }
 
     @GetMapping("/{id}")
-    public Game getGameById(@PathVariable Long id){
+    public Game getGameById(@PathVariable Long id) {
         Game game_to_return = new Game();
         Optional<Game> optionalGame;
         assert gameRepository != null;

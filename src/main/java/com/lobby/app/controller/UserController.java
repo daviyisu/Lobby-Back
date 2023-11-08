@@ -39,7 +39,7 @@ public class UserController {
         if (optionalUser.isPresent()) {
             return optionalUser.get();
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id " + userId + " not found");
         }
     }
 
@@ -48,11 +48,13 @@ public class UserController {
         Optional<User> optionalUser;
         assert userRepository != null;
         optionalUser = userRepository.findUserByUsername(username);
-        User userToReturn = new User();
+
         if (optionalUser.isPresent()) {
-            userToReturn = optionalUser.get();
+            return optionalUser.get();
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
-        return userToReturn;
+
     }
 
     @GetMapping("/{userId}/games/all")
@@ -70,7 +72,4 @@ public class UserController {
         this.userRepository.save(newUser);
         return ResponseEntity.ok(newUser);
     }
-
-
-
 }
