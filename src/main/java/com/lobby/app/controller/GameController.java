@@ -7,12 +7,8 @@ import com.lobby.app.config.Key;
 import com.lobby.app.model.Game;
 import com.lobby.app.repository.GameRepository;
 import com.lobby.app.repository.UserRepository;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -24,9 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-@Setter
-@Getter
-@NoArgsConstructor(force = true)
+
 @RestController
 @RequestMapping("/games")
 @CrossOrigin(origins = "http://localhost:4200") // Allow Angular port use the API
@@ -113,23 +107,12 @@ public class GameController {
     }
 
     @GetMapping("/{id}")
-    public Game getGameById(@PathVariable Long id) {
-        Game game_to_return = new Game();
-        Optional<Game> optionalGame;
-        assert gameRepository != null;
-        optionalGame = gameRepository.findById(id);
-        if (optionalGame.isPresent()) {
-            game_to_return = optionalGame.get();
-        }
-        return game_to_return;
+    public Game getGameById(@PathVariable Integer id) {
+        Optional<Game> optionalGame = gameRepository.findById(id);
+        System.out.println(optionalGame.get().getName());
+        return optionalGame.orElseThrow();
     }
 
-    @PostMapping("/addgame")
-    public ResponseEntity<Game> addUser(@RequestBody Game newGame) {
-        assert this.gameRepository != null;
-        this.gameRepository.save(newGame);
-        return ResponseEntity.ok(newGame);
-    }
 
     /*
     Returns a list of IGDB IDs games list given a Steam user ID

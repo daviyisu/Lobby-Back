@@ -1,28 +1,52 @@
 package com.lobby.app.model;
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
-import java.io.Serializable;
-import java.util.Date;
-
-@Getter
-@NoArgsConstructor
-@Setter
 @Entity
-@Table(name = "game")
-public class Game implements Serializable {
+public class Game {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, updatable = false)
-    private Long id;
+    @Column(name = "id")
+    private Integer id;
+
+    @Column(name = "name")
     private String name;
-    private String genre;
-    private String cover_art_id;
-    private String rating;
-    private String company;
-    private Date release_date;
-    private String platforms;
+    @Column(name = "summary")
+    private String summary;
+
+    @Column(name = "storyline")
+    private String storyline;
+
+    @Column(name = "aggregated_rating")
+    private String aggregatedRating;
+
+    @Column(name = "parent_game")
+    private Integer parentGame;
+
+    @Column(name = "genres")
+    private String genres;
+
+    @Column(name = "first_release_date")
+    private String firstReleaseDate;
+
+    @Column(name = "screenshots")
+    private String screenshots;
+
+    @Column(name = "videos")
+    private String videos;
+
+    @Column(name = "cover")
+    private Integer cover;
+
+    @Column(name = "involved_companies")
+    private String involvedCompanies;
+
+    @Column(name = "artworks")
+    private String artworks;
+
+    public String getName() {
+        return name;
+    }
 }
