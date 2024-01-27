@@ -107,10 +107,13 @@ public class GameController {
     }
 
     @GetMapping("/{id}")
-    public Game getGameById(@PathVariable Integer id) {
+    public Game getGameById(@PathVariable Integer id) throws Exception {
         Optional<Game> optionalGame = gameRepository.findById(id);
-        System.out.println(optionalGame.get().getName());
-        return optionalGame.orElseThrow();
+        if (optionalGame.isPresent()) {
+            return optionalGame.get();
+        } else {
+            throw new Exception();
+        }
     }
 
 

@@ -3,7 +3,9 @@ package com.lobby.app.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import lombok.Getter;
 
+@Getter
 @Entity
 public class Game {
 
@@ -20,7 +22,7 @@ public class Game {
     private String storyline;
 
     @Column(name = "aggregated_rating")
-    private String aggregatedRating;
+    private Integer aggregatedRating;
 
     @Column(name = "parent_game")
     private Integer parentGame;
@@ -46,7 +48,4 @@ public class Game {
     @Column(name = "artworks")
     private String artworks;
 
-    public String getName() {
-        return name;
-    }
 }
