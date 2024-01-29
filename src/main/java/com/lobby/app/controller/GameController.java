@@ -106,6 +106,7 @@ public class GameController {
         return result;
     }
 
+    // TODO This endpoint needs revision
     @GetMapping("/{id}")
     public Game getGameById(@PathVariable Integer id) throws Exception {
         Optional<Game> optionalGame = gameRepository.findById(id);

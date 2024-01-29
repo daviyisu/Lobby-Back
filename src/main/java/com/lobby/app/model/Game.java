@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
 
+import java.util.Date;
+
 @Getter
 @Entity
 public class Game {
@@ -28,24 +30,24 @@ public class Game {
     private Integer parentGame;
 
     @Column(name = "genres")
-    private String genres;
+    private int[] genres;
 
     @Column(name = "first_release_date")
-    private String firstReleaseDate;
+    private Date firstReleaseDate;
 
     @Column(name = "screenshots")
-    private String screenshots;
+    private int[] screenshots;
 
     @Column(name = "videos")
-    private String videos;
+    private int[] videos;
 
     @Column(name = "cover")
     private Integer cover;
 
     @Column(name = "involved_companies")
-    private String involvedCompanies;
+    private int[] involvedCompanies;
 
     @Column(name = "artworks")
-    private String artworks;
+    private int[] artworks;
 
 }
