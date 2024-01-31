@@ -126,49 +126,4 @@ public class GameController {
         List<Integer> steamAppIds = this.getSteamAppIds(userSteamId);
         return this.getIgdbGamesIdsFromSteam(steamAppIds);
     }
-
-//    @GetMapping("/getimage/{gameId}")
-//    public String getCoverId(@PathVariable Long gameId) throws JsonProcessingException {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        assert webClientBuilder != null;
-//        String requestBody = "fields image_id; where game=" + gameId + ";" + " limit 500;";
-//
-//        String jsonResponse = webClientBuilder.build()
-//                .post()
-//                .uri(IGDB_API_BASE + "/covers")
-//                .header("Client-ID", Key.clientId)
-//                .header("Authorization", "Bearer " + Key.accessToken)
-//                .body(BodyInserters.fromValue(requestBody))
-//                .retrieve()
-//                .bodyToMono(String.class)
-//                .block();
-//        JsonNode jsonNode = objectMapper.readTree(jsonResponse);
-//
-//        return "https://images.igdb.com/igdb/image/upload/t_1080p/" + jsonNode.get(0).get("image_id").asText() + ".jpg";
-//    }
-
-
-    /*
-    ALGUN DIA USARE ESTO
-    StringBuilder requestBody = new StringBuilder("fields name; where id=").append(igdbGamesIds.get(0));
-        if (igdbGamesIds.size() > 1) {
-            for (int i = 1; i < igdbGamesIds.size(); i++) {
-                requestBody.append(" | id=").append(igdbGamesIds.get(i).toString());
-            }
-        }
-        requestBody.append("; limit 500;");
-        String jsonResponse = webClientBuilder.build()
-                .post()
-                .uri(this.igdbApiBase + "/games")
-                .header("Client-ID", Key.clientId)
-                .header("Authorization", "Bearer " + Key.accessToken)
-                .body(BodyInserters.fromValue(requestBody.toString()))
-                .retrieve().bodyToMono(String.class).block();
-        JsonNode jsonNode = objectMapper.readTree(jsonResponse);
-        List<String> result = new ArrayList<>();
-        for (int i = 0; i < jsonNode.size(); i++) {
-            result.add(jsonNode.get(i).get("name").toString());
-        }
-        return result;
-    * */
 }

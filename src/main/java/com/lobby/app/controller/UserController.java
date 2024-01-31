@@ -49,20 +49,4 @@ public class UserController {
         }
 
     }
-
-//    @GetMapping("/{userId}/games/all")
-//    public Set<Game> getAllGamesOwned(@PathVariable Long userId){
-//        User userToReturn = getUserById(userId);
-//        return userToReturn.getGamesOwned();
-//    }
-
-//    @PostMapping("/adduser")
-//    public ResponseEntity<User> addUser(@RequestBody User newUser) {
-//        assert this.userRepository != null;
-//        if (this.userRepository.findUserByUsername(newUser.getUsername()).isPresent()) {
-//            return ResponseEntity.badRequest().build();
-//        }
-//        this.userRepository.save(newUser);
-//        return ResponseEntity.ok(newUser);
-//    }
 }
