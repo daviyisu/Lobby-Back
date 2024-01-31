@@ -17,10 +17,10 @@ public class Game {
 
     @Column(name = "name")
     private String name;
-    @Column(name = "summary")
+    @Column(name = "summary", columnDefinition = "TEXT")
     private String summary;
 
-    @Column(name = "storyline")
+    @Column(name = "storyline", columnDefinition = "TEXT")
     private String storyline;
 
     @Column(name = "aggregated_rating")
