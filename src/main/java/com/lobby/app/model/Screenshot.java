@@ -13,9 +13,6 @@ public class Screenshot {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "url")
-    private String url;
-
     @Column(name = "width")
     private Integer width;
 
@@ -25,15 +22,6 @@ public class Screenshot {
     @Column(name = "image_id")
     private String imageId;
 
-    @Column(name = "alpha_channel")
-    private String alphaChannel;
-
-    @Column(name = "animated")
-    private String animated;
-
     @Column(name = "game")
     private Integer game;
-
-    @Column(name = "checksum")
-    private String checksum;
 }
