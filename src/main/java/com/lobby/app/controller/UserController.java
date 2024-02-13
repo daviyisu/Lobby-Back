@@ -12,7 +12,7 @@ import java.util.Optional;
 
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/user")
 @CrossOrigin(origins = "http://localhost:4200") // Allow Angular port use the API
 public class UserController {
 
