@@ -32,6 +32,9 @@ public class Game {
     @Column(name = "genres")
     private int[] genres;
 
+    @Column(name = "platforms")
+    private int[] platforms;
+
     @Column(name = "first_release_date")
     private Date firstReleaseDate;
 

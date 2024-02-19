@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lobby.app.config.Key;
 import com.lobby.app.model.Game;
+import com.lobby.app.model.Platform;
 import com.lobby.app.repository.GameRepository;
+import com.lobby.app.repository.PlatformRepository;
 import com.lobby.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -14,11 +16,9 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 
 
 @RestController
@@ -27,6 +27,8 @@ import java.util.Optional;
 public class GameController {
 
     private final GameRepository gameRepository;
+
+    private final PlatformRepository platformRepository;
 
     private final UserRepository userRepository;
 
@@ -43,10 +45,11 @@ public class GameController {
     @Autowired
     public GameController(GameRepository gameRepository,
                           UserRepository userRepository,
-                          WebClient.Builder webClientBuilder
-    ) {
+                          PlatformRepository platformRepository,
+                          WebClient.Builder webClientBuilder) {
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
+        this.platformRepository = platformRepository;
         this.webClientBuilder = webClientBuilder;
     }
 
@@ -125,5 +128,22 @@ public class GameController {
     public List<Integer> getSteamGames(@PathVariable Long userSteamId) throws JsonProcessingException {
         List<Integer> steamAppIds = this.getSteamAppIds(userSteamId);
         return this.getIgdbGamesIdsFromSteam(steamAppIds);
+    }
+
+    /*
+    Returns a list of platforms names given a game ID
+    */
+    @GetMapping("/{id}/platforms")
+    public List<String> getGamePlatforms(@PathVariable Integer id) {
+        List<String> result = new ArrayList<>();
+        Optional<Game> optionalGame = gameRepository.findById(id);
+        if (optionalGame.isPresent()) {
+            Game foundGame = optionalGame.get();
+            for (Integer platformId : foundGame.getPlatforms()) {
+                Optional<Platform> optionalPlatform = this.platformRepository.findById(platformId);
+                optionalPlatform.ifPresent(platform -> result.add(platform.getName()));
+            }
+        }
+        return result;
     }
 }
