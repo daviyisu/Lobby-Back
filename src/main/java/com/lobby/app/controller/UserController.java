@@ -40,7 +40,7 @@ public class UserController {
     public User getUserByUsername(@PathVariable String username) {
         Optional<User> optionalUser;
         assert userRepository != null;
-        optionalUser = userRepository.findUserByUsername(username);
+        optionalUser = userRepository.findByUsername(username);
 
         if (optionalUser.isPresent()) {
             return optionalUser.get();

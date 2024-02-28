@@ -120,6 +120,10 @@ public class GameController {
         }
     }
 
+    @GetMapping("/private_ping")
+    public String private_ping() {
+       return "private pong";
+    }
 
     /*
     Returns a list of IGDB IDs games list given a Steam user ID
