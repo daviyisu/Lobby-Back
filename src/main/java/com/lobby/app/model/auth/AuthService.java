@@ -1,5 +1,6 @@
 package com.lobby.app.model.auth;
 
+import com.lobby.app.exception.UserAlreadyExistsException;
 import com.lobby.app.jwt.JwtService;
 import com.lobby.app.model.User;
 import com.lobby.app.repository.UserRepository;
@@ -29,11 +30,15 @@ public class AuthService {
                 .build();
     }
 
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request) throws UserAlreadyExistsException {
         User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
+
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new UserAlreadyExistsException("User already exists");
+        }
 
         userRepository.save(user);
 
