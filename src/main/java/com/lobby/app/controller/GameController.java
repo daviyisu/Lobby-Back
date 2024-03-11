@@ -143,9 +143,11 @@ public class GameController {
         Optional<Game> optionalGame = gameRepository.findById(id);
         if (optionalGame.isPresent()) {
             Game foundGame = optionalGame.get();
-            for (Integer platformId : foundGame.getPlatforms()) {
-                Optional<Platform> optionalPlatform = this.platformRepository.findById(platformId);
-                optionalPlatform.ifPresent(platform -> result.add(platform.getName()));
+            if (foundGame.getPlatforms() != null) {
+                for (Integer platformId : foundGame.getPlatforms()) {
+                    Optional<Platform> optionalPlatform = this.platformRepository.findById(platformId);
+                    optionalPlatform.ifPresent(platform -> result.add(platform.getName()));
+                }
             }
         }
         return result;
