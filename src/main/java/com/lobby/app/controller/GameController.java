@@ -8,10 +8,7 @@ import com.lobby.app.model.Collection;
 import com.lobby.app.model.Game;
 import com.lobby.app.model.Platform;
 import com.lobby.app.model.User;
-import com.lobby.app.repository.CollectionRepository;
-import com.lobby.app.repository.GameRepository;
-import com.lobby.app.repository.PlatformRepository;
-import com.lobby.app.repository.UserRepository;
+import com.lobby.app.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.security.core.Authentication;
@@ -39,6 +36,8 @@ public class GameController {
 
     private final UserRepository userRepository;
 
+    private final CoverRepository coverRepository;
+
     private static final String STEAM_API_BASE = "https://api.steampowered.com";
 
     private static final String IGDB_API_BASE = "https://api.igdb.com/v4/";
@@ -54,13 +53,15 @@ public class GameController {
                           UserRepository userRepository,
                           PlatformRepository platformRepository,
                           WebClient.Builder webClientBuilder,
-                          CollectionRepository collectionRepository
+                          CollectionRepository collectionRepository,
+                          CoverRepository coverRepository
     ) {
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
         this.platformRepository = platformRepository;
         this.webClientBuilder = webClientBuilder;
         this.collectionRepository = collectionRepository;
+        this.coverRepository = coverRepository;
     }
 
     /*
@@ -124,6 +125,9 @@ public class GameController {
     public Game getGameById(@PathVariable Integer id) throws Exception {
         Optional<Game> optionalGame = gameRepository.findById(id);
         if (optionalGame.isPresent()) {
+            optionalGame.get().setCoverImageId(
+                    this.coverRepository.findCoverByGame(optionalGame.get().getId()).getImageId()
+            );
             return optionalGame.get();
         } else {
             throw new Exception();
@@ -140,7 +144,10 @@ public class GameController {
         if (!userGamesIds.isEmpty()) {
             for (Collection gameId: userGamesIds) {
                 Optional<Game> optionalGame = this.gameRepository.findById(gameId.getGame().getId());
-                optionalGame.ifPresent(result::add);
+                optionalGame.ifPresent(game -> {
+                    game.setCoverImageId(this.coverRepository.findCoverByGame(game.getId()).getImageId());
+                    result.add(game);
+                });
             }
         }
         return result;
