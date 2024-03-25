@@ -4,10 +4,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
 @Getter
+@Setter
 @Entity
 public class Game {
 
@@ -52,5 +54,7 @@ public class Game {
 
     @Column(name = "artworks")
     private int[] artworks;
+
+    private String coverImageId;
 
 }

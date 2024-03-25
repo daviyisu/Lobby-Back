@@ -4,6 +4,8 @@ package com.lobby.app.controller;
 import com.lobby.app.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import com.lobby.app.repository.UserRepository;
 import org.springframework.web.server.ResponseStatusException;
@@ -34,6 +36,13 @@ public class UserController {
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id " + userId + " not found");
         }
+    }
+
+    @GetMapping("/name_ping")
+    public String private_ping() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String name = authentication.getPrincipal().toString();
+        return "Ping for " + name;
     }
 
     @GetMapping("/getbyusername/{username}")

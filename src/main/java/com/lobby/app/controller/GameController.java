@@ -4,13 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lobby.app.config.Key;
+import com.lobby.app.model.Collection;
 import com.lobby.app.model.Game;
 import com.lobby.app.model.Platform;
-import com.lobby.app.repository.GameRepository;
-import com.lobby.app.repository.PlatformRepository;
-import com.lobby.app.repository.UserRepository;
+import com.lobby.app.model.User;
+import com.lobby.app.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -30,7 +32,11 @@ public class GameController {
 
     private final PlatformRepository platformRepository;
 
+    private final CollectionRepository collectionRepository;
+
     private final UserRepository userRepository;
+
+    private final CoverRepository coverRepository;
 
     private static final String STEAM_API_BASE = "https://api.steampowered.com";
 
@@ -46,11 +52,16 @@ public class GameController {
     public GameController(GameRepository gameRepository,
                           UserRepository userRepository,
                           PlatformRepository platformRepository,
-                          WebClient.Builder webClientBuilder) {
+                          WebClient.Builder webClientBuilder,
+                          CollectionRepository collectionRepository,
+                          CoverRepository coverRepository
+    ) {
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
         this.platformRepository = platformRepository;
         this.webClientBuilder = webClientBuilder;
+        this.collectionRepository = collectionRepository;
+        this.coverRepository = coverRepository;
     }
 
     /*
@@ -114,10 +125,32 @@ public class GameController {
     public Game getGameById(@PathVariable Integer id) throws Exception {
         Optional<Game> optionalGame = gameRepository.findById(id);
         if (optionalGame.isPresent()) {
+            optionalGame.get().setCoverImageId(
+                    this.coverRepository.findCoverByGame(optionalGame.get().getId()).getImageId()
+            );
             return optionalGame.get();
         } else {
             throw new Exception();
         }
+    }
+
+    @GetMapping("usergames")
+    public List<Game> getUserGames() throws Exception {
+        List<Game> result = new ArrayList<>();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User principal = (User) authentication.getPrincipal();
+        Optional<User> user = this.userRepository.findById(principal.getId());
+        List<Collection> userGamesIds = this.collectionRepository.findAllByUser(user.get());
+        if (!userGamesIds.isEmpty()) {
+            for (Collection gameId: userGamesIds) {
+                Optional<Game> optionalGame = this.gameRepository.findById(gameId.getGame().getId());
+                optionalGame.ifPresent(game -> {
+                    game.setCoverImageId(this.coverRepository.findCoverByGame(game.getId()).getImageId());
+                    result.add(game);
+                });
+            }
+        }
+        return result;
     }
 
     @GetMapping("/private_ping")
@@ -143,9 +176,11 @@ public class GameController {
         Optional<Game> optionalGame = gameRepository.findById(id);
         if (optionalGame.isPresent()) {
             Game foundGame = optionalGame.get();
-            for (Integer platformId : foundGame.getPlatforms()) {
-                Optional<Platform> optionalPlatform = this.platformRepository.findById(platformId);
-                optionalPlatform.ifPresent(platform -> result.add(platform.getName()));
+            if (foundGame.getPlatforms() != null) {
+                for (Integer platformId : foundGame.getPlatforms()) {
+                    Optional<Platform> optionalPlatform = this.platformRepository.findById(platformId);
+                    optionalPlatform.ifPresent(platform -> result.add(platform.getName()));
+                }
             }
         }
         return result;
