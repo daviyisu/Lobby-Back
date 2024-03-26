@@ -1,5 +1,6 @@
 package com.lobby.app.model.auth;
 
+import com.lobby.app.exception.InvalidRegisterException;
 import com.lobby.app.exception.UserAlreadyExistsException;
 import com.lobby.app.jwt.JwtService;
 import com.lobby.app.model.User;
@@ -10,6 +11,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import static com.lobby.app.utils.GlobalVariables.INPUT_USERNAME_MAX_LENGTH;
+import static com.lobby.app.utils.GlobalVariables.INPUT_USERNAME_MIN_LENGTH;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +35,15 @@ public class AuthService {
     }
 
     public AuthResponse register(RegisterRequest request) throws UserAlreadyExistsException {
+
+        if (request.getUsername().length() < INPUT_USERNAME_MIN_LENGTH
+                || request.getUsername().length() > INPUT_USERNAME_MAX_LENGTH
+                || request.getUsername().isEmpty()
+                || request.getPassword().isEmpty())
+                {
+            throw new InvalidRegisterException("Invalid register credentials");
+        }
+
         User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))

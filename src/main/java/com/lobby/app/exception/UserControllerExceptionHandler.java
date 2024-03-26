@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,5 +27,13 @@ public class UserControllerExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body("User with that username already exists");
+    }
+
+    @ExceptionHandler(InvalidRegisterException.class)
+    public ResponseEntity<Object> invalidRegister(InvalidRegisterException e) {
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, e.getMessage(), e);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body("Invalid register credentials");
     }
 }
