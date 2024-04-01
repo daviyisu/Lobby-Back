@@ -185,4 +185,12 @@ public class GameController {
         }
         return result;
     }
+
+    @GetMapping("/searchbyname/{query}")
+    public List<Game> search(@PathVariable String query) {
+        List<Game> result;
+        result = this.gameRepository.findAllByNameContaining(query);
+
+        return result;
+    }
 }
