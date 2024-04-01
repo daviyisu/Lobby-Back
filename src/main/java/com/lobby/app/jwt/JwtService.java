@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,11 +35,14 @@ public class JwtService {
     }
 
     public String getToken(Map<String,Object> extraClaims, UserDetails user) {
+        Calendar expirationTime = Calendar.getInstance();
+        expirationTime.add(Calendar.YEAR, 1);
+
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()*1000*60*60*24*31))
+                .setExpiration(expirationTime.getTime())
                 .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
