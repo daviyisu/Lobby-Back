@@ -55,6 +55,9 @@ public class Game {
     @Column(name = "artworks")
     private int[] artworks;
 
+    @Column(name = "category")
+    private int category;
+
     private String coverImageId;
 
 }

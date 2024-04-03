@@ -186,11 +186,16 @@ public class GameController {
         return result;
     }
 
-    @GetMapping("/searchbyname/{query}")
-    public List<Game> search(@PathVariable String query) {
-        List<Game> result;
-        result = this.gameRepository.findAllByNameContaining(query);
-
-        return result;
+    @GetMapping("/searchbyname")
+    public List<Game> search(@RequestParam("query") String query) {
+        List<Game> result = new ArrayList<>();
+        if (!query.isEmpty()) {
+            result = this.gameRepository.findAllByNameContainingIgnoreCaseAndCategory(query, 0);
+        }
+        if (result.size() >= 10) {
+            return result.subList(0,10);
+        } else {
+            return result;
+        }
     }
 }
