@@ -2,8 +2,10 @@ package com.lobby.app.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Entity
 @Table(name="collection")
 public class Collection {
@@ -20,4 +22,8 @@ public class Collection {
     @ManyToOne
     @JoinColumn(name = "game_id", referencedColumnName = "id")
     private Game game;
+
+    @Column(name="collection_status")
+    @Enumerated(EnumType.STRING)
+    private CollectionStatus status;
 }

@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lobby.app.config.Key;
-import com.lobby.app.model.Collection;
-import com.lobby.app.model.Game;
-import com.lobby.app.model.Platform;
-import com.lobby.app.model.User;
+import com.lobby.app.model.*;
 import com.lobby.app.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -197,5 +194,14 @@ public class GameController {
         } else {
             return result;
         }
+    }
+
+    @PostMapping("/addgame")
+    public void addGame(@RequestBody GameStatusRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User principal = (User) authentication.getPrincipal();
+        Collection collection = this.collectionRepository.findByUserAndGameId(principal, request.getGameId());
+        collection.setStatus(request.getStatus());
+        this.collectionRepository.save(collection);
     }
 }

@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface CollectionRepository extends JpaRepository<Collection, Integer> {
     List<Collection> findAllByUser(User user);
+    Collection findByUserAndGameId(User user, Integer gameId);
 }
