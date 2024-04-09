@@ -211,4 +211,15 @@ public class GameController {
         }
 
     }
+
+    @GetMapping("/owns/{id}")
+    public CollectionStatus hasGameCheck(@PathVariable Integer id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User principal = (User) authentication.getPrincipal();
+        Optional<Collection> collection = this.collectionRepository.findByUserAndGameId(principal, id);
+        if (collection.isPresent()) {
+            return collection.get().getStatus();
+        }
+        else return CollectionStatus.NOT_OWNED;
+    }
 }

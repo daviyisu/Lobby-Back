@@ -4,5 +4,6 @@ public enum CollectionStatus {
     COMPLETED,
     PLAYED,
     ABANDONED,
-    RETIRED
+    RETIRED,
+    NOT_OWNED
 }
