@@ -200,8 +200,15 @@ public class GameController {
     public void addGame(@RequestBody GameStatusRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User principal = (User) authentication.getPrincipal();
-        Collection collection = this.collectionRepository.findByUserAndGameId(principal, request.getGameId());
-        collection.setStatus(request.getStatus());
-        this.collectionRepository.save(collection);
+        Optional<Collection> collection = this.collectionRepository.findByUserAndGameId(principal, request.getGameId());
+        if (collection.isPresent()) {
+            collection.get().setStatus(request.getStatus());
+            this.collectionRepository.save(collection.get());
+        } else {
+            Optional<Game> newGame = this.gameRepository.findById(request.getGameId());
+            Collection new_collection = new Collection(principal, newGame.get(), request.getStatus());
+            this.collectionRepository.save(new_collection);
+        }
+
     }
 }
