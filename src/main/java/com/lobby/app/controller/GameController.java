@@ -202,8 +202,12 @@ public class GameController {
         User principal = (User) authentication.getPrincipal();
         Optional<Collection> collection = this.collectionRepository.findByUserAndGameId(principal, request.getGameId());
         if (collection.isPresent()) {
-            collection.get().setStatus(request.getStatus());
-            this.collectionRepository.save(collection.get());
+            if (request.getStatus() == CollectionStatus.NOT_OWNED) {
+                this.collectionRepository.delete(collection.get());
+            } else {
+                collection.get().setStatus(request.getStatus());
+                this.collectionRepository.save(collection.get());
+            }
         } else {
             Optional<Game> newGame = this.gameRepository.findById(request.getGameId());
             Collection new_collection = new Collection(principal, newGame.get(), request.getStatus());
