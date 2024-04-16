@@ -33,7 +33,7 @@ public class ReviewController {
         User principal = (User) authentication.getPrincipal();
         Optional<Game> game = this.gameRepository.findById(request.getGameId());
         if (game.isPresent()) {
-            Review newReview = new Review(principal, game.get(), request.getReview_text(), 0, request.getRating());
+            Review newReview = new Review(principal, game.get(), request.getReview_text(), request.getSummary(), 0, request.getRating());
             this.reviewRepository.save(newReview);
         } else {
             throw new Exception();

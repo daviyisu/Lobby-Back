@@ -3,6 +3,9 @@ package com.lobby.app.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.util.Date;
 
 @Entity
 @Getter
@@ -26,16 +29,25 @@ public class Review {
     @Column(name = "review_text", length = 1000)
     private String review_text;
 
+    @Column(name = "summary")
+    private String summary;
+
     @Column(name = "likes")
     private Integer likes;
 
     @Column(name = "rating")
     private Integer rating;
 
-    public Review(User user, Game game, String review_text, Integer likes, Integer rating) {
+    @Column(name = "createdAt")
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    public Review(User user, Game game, String review_text, String summary, Integer likes, Integer rating) {
         this.user = user;
         this.game = game;
         this.review_text = review_text;
+        this.summary = summary;
         this.likes = likes;
         this.rating = rating;
     }

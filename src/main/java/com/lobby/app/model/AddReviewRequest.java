@@ -9,4 +9,5 @@ public class AddReviewRequest {
     Integer gameId;
     Integer rating;
     String review_text;
+    String summary;
 }
