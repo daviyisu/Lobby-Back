@@ -1,9 +1,6 @@
 package com.lobby.app.controller;
 
-import com.lobby.app.model.AddReviewRequest;
-import com.lobby.app.model.Game;
-import com.lobby.app.model.Review;
-import com.lobby.app.model.User;
+import com.lobby.app.model.*;
 import com.lobby.app.repository.GameRepository;
 import com.lobby.app.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +8,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -38,5 +37,14 @@ public class ReviewController {
         } else {
             throw new Exception();
         }
+    }
+
+    @GetMapping("/ofgame/{gameId}")
+    public List<ReviewDTO> getReviewsByGame(@PathVariable Integer gameId) {
+        List<ReviewDTO> reviews = new ArrayList<>();
+        if (this.gameRepository.findById(gameId).isPresent()) {
+            reviews = this.reviewRepository.findReviewsByGameId(gameId);
+        }
+        return reviews;
     }
 }
