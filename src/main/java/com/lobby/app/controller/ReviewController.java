@@ -52,4 +52,18 @@ public class ReviewController {
     public void deleteReview(@PathVariable Integer reviewId) {
         this.reviewRepository.deleteById(reviewId);
     }
+
+    @PutMapping("")
+    public void updateReview(@RequestBody UpdateReviewRequest request) throws Exception {
+        Review oldReview = this.reviewRepository.findById(request.getReviewId()).orElse(null);
+        System.out.println(oldReview);
+        if (oldReview != null) {
+            oldReview.setReview_text(request.getReviewText());
+            oldReview.setSummary(request.getSummary());
+            this.reviewRepository.save(oldReview);
+        }
+        else {
+            throw new Exception();
+        }
+    }
 }

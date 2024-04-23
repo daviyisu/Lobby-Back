@@ -3,12 +3,14 @@ package com.lobby.app.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "review")
 public class Review {
