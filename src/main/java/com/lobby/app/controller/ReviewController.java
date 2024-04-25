@@ -32,7 +32,7 @@ public class ReviewController {
         User principal = (User) authentication.getPrincipal();
         Optional<Game> game = this.gameRepository.findById(request.getGameId());
         if (game.isPresent()) {
-            Review newReview = new Review(principal, game.get(), request.getReview_text(), request.getSummary(), 0, request.getRating());
+            Review newReview = new Review(principal, game.get(), request.getReview_text(), request.getSummary(), 0, request.getRating(), principal.getUsername());
             this.reviewRepository.save(newReview);
         } else {
             throw new Exception();
@@ -56,10 +56,10 @@ public class ReviewController {
     @PutMapping("")
     public void updateReview(@RequestBody UpdateReviewRequest request) throws Exception {
         Review oldReview = this.reviewRepository.findById(request.getReviewId()).orElse(null);
-        System.out.println(oldReview);
         if (oldReview != null) {
             oldReview.setReview_text(request.getReviewText());
             oldReview.setSummary(request.getSummary());
+            oldReview.setRating(request.getRating());
             this.reviewRepository.save(oldReview);
         }
         else {

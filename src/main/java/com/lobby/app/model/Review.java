@@ -45,12 +45,16 @@ public class Review {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
-    public Review(User user, Game game, String review_text, String summary, Integer likes, Integer rating) {
+    @Column(name = "written_by")
+    private String writtenBy;
+
+    public Review(User user, Game game, String review_text, String summary, Integer likes, Integer rating, String writtenBy) {
         this.user = user;
         this.game = game;
         this.review_text = review_text;
         this.summary = summary;
         this.likes = likes;
         this.rating = rating;
+        this.writtenBy = writtenBy;
     }
 }

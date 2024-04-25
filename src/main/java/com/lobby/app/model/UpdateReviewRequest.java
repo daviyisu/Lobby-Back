@@ -9,4 +9,5 @@ public class UpdateReviewRequest {
     Integer reviewId;
     String reviewText;
     String summary;
+    Integer rating;
 }
