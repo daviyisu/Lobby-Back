@@ -58,4 +58,9 @@ public class UserController {
         }
 
     }
+
+    @GetMapping("/current_user")
+    public User getCurrentUser() {
+        return User.getCurrentUser();
+    }
 }
