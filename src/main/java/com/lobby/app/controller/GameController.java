@@ -226,4 +226,14 @@ public class GameController {
         }
         else return CollectionStatus.NOT_OWNED;
     }
+
+    @GetMapping("collectioncount")
+    public Integer getCollectionCount() {
+        return this.collectionRepository.countAllByUser(User.getCurrentUser());
+    }
+
+    @GetMapping("countbystatus/{status}")
+    public Integer getCountByStatus(@PathVariable CollectionStatus status) {
+        return this.collectionRepository.countAllByUserAndStatus(User.getCurrentUser(), status);
+    }
 }

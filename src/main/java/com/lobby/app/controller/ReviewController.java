@@ -66,4 +66,9 @@ public class ReviewController {
             throw new Exception();
         }
     }
+
+    @GetMapping("countreviews")
+    public Integer countReviews() {
+        return this.reviewRepository.countAllByUser(User.getCurrentUser());
+    }
 }
