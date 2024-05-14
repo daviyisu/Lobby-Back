@@ -22,7 +22,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/game")
-@CrossOrigin(origins = "http://localhost:4200") // Allow Angular port use the API
 public class GameController {
 
     private final GameRepository gameRepository;
