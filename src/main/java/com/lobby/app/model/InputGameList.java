@@ -11,5 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 public class InputGameList {
     String name;
-    List<Integer> idList;
+    List<Game> games;
 }

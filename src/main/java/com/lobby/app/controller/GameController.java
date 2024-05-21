@@ -133,10 +133,7 @@ public class GameController {
     @GetMapping("usergames")
     public List<Game> getUserGames() throws Exception {
         List<Game> result = new ArrayList<>();
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User principal = (User) authentication.getPrincipal();
-        Optional<User> user = this.userRepository.findById(principal.getId());
-        List<Collection> userGamesIds = this.collectionRepository.findAllByUser(user.get());
+        List<Collection> userGamesIds = this.collectionRepository.findAllByUser(User.getCurrentUser());
         if (!userGamesIds.isEmpty()) {
             for (Collection gameId: userGamesIds) {
                 Optional<Game> optionalGame = this.gameRepository.findById(gameId.getGame().getId());
