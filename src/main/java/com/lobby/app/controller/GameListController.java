@@ -3,6 +3,7 @@ package com.lobby.app.controller;
 import com.lobby.app.model.*;
 import com.lobby.app.repository.CoverRepository;
 import com.lobby.app.repository.GameListRepository;
+import com.lobby.app.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,12 +15,14 @@ import java.util.stream.Collectors;
 public class GameListController {
 
     private final GameListRepository gameListRepository;
+    private final GameRepository gameRepository;
     private final CoverRepository coverRepository;
 
     @Autowired
-    public GameListController(GameListRepository gameListRepository, CoverRepository coverRepository) {
+    public GameListController(GameListRepository gameListRepository, CoverRepository coverRepository, GameRepository gameRepository) {
         this.gameListRepository = gameListRepository;
         this.coverRepository = coverRepository;
+        this.gameRepository = gameRepository;
     }
 
     @GetMapping("/{id}")
@@ -40,6 +43,17 @@ public class GameListController {
                 .map(this::setGamesCovers)
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    //TODO ESTE ENDPOINT DEVUELVE LA LISTA MAL PORQUE EL JUEGO QUE AÑADAS NO TIENE EL GAMECOVER SETEADO
+    @PatchMapping("/add_to_list")
+    public GameListDTO addGameToList(@RequestBody AddGameToListRequest request) {
+        GameList gameListToUpdate = this.gameListRepository.findById(request.getListId()).orElse(null);
+        Game gameToAdd = this.gameRepository.findById(request.getGameId()).orElse(null);
+        assert gameListToUpdate != null;
+        gameListToUpdate.getGames().add(gameToAdd);
+        this.gameListRepository.save(gameListToUpdate);
+        return this.convertToDTO(gameListToUpdate);
     }
 
     private GameListDTO convertToDTO(GameList gameList) {
