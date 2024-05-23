@@ -22,6 +22,11 @@ public class GameListController {
         this.coverRepository = coverRepository;
     }
 
+    @GetMapping("/{id}")
+    public GameList findById(@PathVariable Integer id) {
+        return gameListRepository.findById(id).orElse(null);
+    }
+
     @PostMapping("/new")
     public void createList(@RequestBody InputGameList requestList) {
         GameList newGameList = new GameList(requestList.getName(), User.getCurrentUser(), requestList.getGames());
