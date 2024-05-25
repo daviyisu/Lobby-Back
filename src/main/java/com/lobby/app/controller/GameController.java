@@ -16,6 +16,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -182,11 +183,12 @@ public class GameController {
     @GetMapping("/searchbyname")
     public List<Game> search(@RequestParam("query") String query) {
         List<Game> result = new ArrayList<>();
+        List<Integer> categoriesToSearch = Arrays.asList(0, 8, 10);
         if (!query.isEmpty()) {
-            result = this.gameRepository.findAllByNameContainingIgnoreCaseAndCategory(query, 0);
+            result = this.gameRepository.findAllByNameContainingIgnoreCaseAndCategoryIn(query, categoriesToSearch);
         }
-        if (result.size() >= 10) {
-            return result.subList(0,10);
+        if (result.size() >= 20) {
+            return result.subList(0,20);
         } else {
             return result;
         }

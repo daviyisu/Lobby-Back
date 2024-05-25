@@ -26,14 +26,16 @@ public class GameListController {
     }
 
     @GetMapping("/{id}")
-    public GameList findById(@PathVariable Integer id) {
-        return gameListRepository.findById(id).orElse(null);
+    public GameListDTO findById(@PathVariable Integer id) {
+        GameList listToReturn = gameListRepository.findById(id).orElseThrow();
+        return convertToDTO(setGamesCovers(listToReturn));
     }
 
     @PostMapping("/new")
-    public void createList(@RequestBody InputGameList requestList) {
+    public GameListDTO createList(@RequestBody InputGameList requestList) {
         GameList newGameList = new GameList(requestList.getName(), User.getCurrentUser(), requestList.getGames());
         this.gameListRepository.save(newGameList);
+        return convertToDTO(setGamesCovers(newGameList));
     }
 
     @GetMapping("/from_user")
@@ -45,15 +47,13 @@ public class GameListController {
                 .collect(Collectors.toList());
     }
 
-    //TODO ESTE ENDPOINT DEVUELVE LA LISTA MAL PORQUE EL JUEGO QUE AÑADAS NO TIENE EL GAMECOVER SETEADO
     @PatchMapping("/add_to_list")
     public GameListDTO addGameToList(@RequestBody AddGameToListRequest request) {
-        GameList gameListToUpdate = this.gameListRepository.findById(request.getListId()).orElse(null);
-        Game gameToAdd = this.gameRepository.findById(request.getGameId()).orElse(null);
-        assert gameListToUpdate != null;
+        GameList gameListToUpdate = this.gameListRepository.findById(request.getListId()).orElseThrow();
+        Game gameToAdd = this.gameRepository.findById(request.getGameId()).orElseThrow();
         gameListToUpdate.getGames().add(gameToAdd);
         this.gameListRepository.save(gameListToUpdate);
-        return this.convertToDTO(gameListToUpdate);
+        return this.convertToDTO(setGamesCovers(gameListToUpdate));
     }
 
     private GameListDTO convertToDTO(GameList gameList) {
@@ -63,9 +63,9 @@ public class GameListController {
 
     private GameList setGamesCovers(GameList gameList) {
         for (Game game : gameList.getGames()) {
-            game.setCoverImageId(
-                    this.coverRepository.findCoverByGame(game.getId()).getImageId()
-            );
+                game.setCoverImageId(
+                        this.coverRepository.findCoverByGame(game.getId()).getImageId()
+                );
         }
         return gameList;
     }
