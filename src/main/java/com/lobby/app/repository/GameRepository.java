@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface GameRepository extends JpaRepository<Game, Integer> {
-    List<Game> findAllByNameContainingIgnoreCaseAndCategory(String name, Integer category);
+    List<Game> findAllByNameContainingIgnoreCaseAndCategoryIn(String name, List<Integer> categories);
 }
