@@ -56,6 +56,15 @@ public class GameListController {
         return this.convertToDTO(setGamesCovers(gameListToUpdate));
     }
 
+    @PatchMapping("/update_list")
+    public GameListDTO updateList(@RequestBody UpdateListRequest request) {
+        GameList listToUpdate = this.gameListRepository.findById(request.getIdList()).orElseThrow();
+        listToUpdate.setGames(request.getUpdatedList().getGames());
+        listToUpdate.setName(request.getUpdatedList().getName());
+        this.gameListRepository.save(listToUpdate);
+        return this.convertToDTO(setGamesCovers(listToUpdate));
+    }
+
     private GameListDTO convertToDTO(GameList gameList) {
         UserDTO userDTO = new UserDTO(gameList.getUser().getId(), gameList.getUser().getUsername());
         return new GameListDTO(gameList.getId(), gameList.getName(), userDTO, gameList.getGames());
