@@ -78,4 +78,9 @@ public class GameListController {
         }
         return gameList;
     }
+
+    @DeleteMapping("/{id}")
+    private void deleteList(@PathVariable Integer id) {
+        this.gameListRepository.deleteById(id);
+    }
 }
