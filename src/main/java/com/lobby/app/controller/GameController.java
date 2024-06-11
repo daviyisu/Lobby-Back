@@ -122,8 +122,9 @@ public class GameController {
     public Game getGameById(@PathVariable Integer id) throws Exception {
         Optional<Game> optionalGame = gameRepository.findById(id);
         if (optionalGame.isPresent()) {
+            Cover cover = this.coverRepository.findCoverByGame(optionalGame.get().getId());
             optionalGame.get().setCoverImageId(
-                    this.coverRepository.findCoverByGame(optionalGame.get().getId()).getImageId()
+                    cover != null ? cover.getImageId() : null
             );
             return optionalGame.get();
         } else {
@@ -139,7 +140,8 @@ public class GameController {
             for (Collection gameId: userGamesIds) {
                 Optional<Game> optionalGame = this.gameRepository.findById(gameId.getGame().getId());
                 optionalGame.ifPresent(game -> {
-                    game.setCoverImageId(this.coverRepository.findCoverByGame(game.getId()).getImageId());
+                    Cover cover = this.coverRepository.findCoverByGame(game.getId());
+                    game.setCoverImageId(cover != null ? cover.getImageId() : null);
                     result.add(game);
                 });
             }
@@ -233,5 +235,17 @@ public class GameController {
     @GetMapping("countbystatus/{status}")
     public Integer getCountByStatus(@PathVariable CollectionStatus status) {
         return this.collectionRepository.countAllByUserAndStatus(User.getCurrentUser(), status);
+    }
+
+    @GetMapping("recentgames")
+    public List<Game> getRecentGames() {
+        List<Game> gamesToReturn = this.gameRepository.findRecentAddedGames();
+        if (!gamesToReturn.isEmpty()) {
+            for (Game game : gamesToReturn) {
+                Cover cover = this.coverRepository.findCoverByGame(game.getId());
+                game.setCoverImageId(cover != null ? cover.getImageId() : null);
+            }
+        }
+        return gamesToReturn;
     }
 }

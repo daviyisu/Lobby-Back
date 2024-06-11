@@ -56,5 +56,8 @@ public class Game {
     @Column(name = "category")
     private int category;
 
+    @Column(name = "created_at")
+    private Date createdAt;
+
     private String coverImageId;
 }
