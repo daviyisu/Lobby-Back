@@ -27,11 +27,11 @@ public class GameController {
 
     private final GameRepository gameRepository;
 
+    private final WebsiteRepository websiteRepository;
+
     private final PlatformRepository platformRepository;
 
     private final CollectionRepository collectionRepository;
-
-    private final UserRepository userRepository;
 
     private final CoverRepository coverRepository;
 
@@ -47,14 +47,14 @@ public class GameController {
 
     @Autowired
     public GameController(GameRepository gameRepository,
-                          UserRepository userRepository,
+                          WebsiteRepository websiteRepository,
                           PlatformRepository platformRepository,
                           WebClient.Builder webClientBuilder,
                           CollectionRepository collectionRepository,
                           CoverRepository coverRepository
     ) {
         this.gameRepository = gameRepository;
-        this.userRepository = userRepository;
+        this.websiteRepository = websiteRepository;
         this.platformRepository = platformRepository;
         this.webClientBuilder = webClientBuilder;
         this.collectionRepository = collectionRepository;
@@ -86,35 +86,12 @@ public class GameController {
     /*
     Extract a list of the equivalent IGDB games IDs from a Steam IDs games list
     */
-    private List<Integer> getIgdbGamesIdsFromSteam(List<Integer> steamAppIds) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        assert webClientBuilder != null;
-        StringBuilder requestBody = new StringBuilder().append("fields game; where url=\"")
-                .append(STEAM_URL_BASE)
-                .append(steamAppIds.get(0).toString())
-                .append("\"");
-        if (steamAppIds.size() > 1) {
-            for (int i = 1; i < steamAppIds.size(); i++) {
-                requestBody.append(" | url=\"")
-                        .append(STEAM_URL_BASE)
-                        .append(steamAppIds.get(i).toString())
-                        .append("\"");
-            }
-        }
-        requestBody.append("; limit 500;");
-        String jsonResponse = webClientBuilder.build()
-                .post()
-                .uri(IGDB_API_BASE + "/websites")
-                .header("Client-ID", Key.clientId)
-                .header("Authorization", "Bearer " + Key.accessToken)
-                .body(BodyInserters.fromValue(requestBody.toString()))
-                .retrieve().bodyToMono(String.class).block();
-        JsonNode jsonNode = objectMapper.readTree(jsonResponse);
-        List<Integer> result = new ArrayList<>();
-        for (int i = 0; i < jsonNode.size(); i++) {
-            result.add(jsonNode.get(i).get("game").asInt());
-        }
-        return result;
+    private void getIgdbGamesIdsFromSteam(List<Integer> steamAppIds) throws JsonProcessingException {
+        List<String> steamUrls = steamAppIds.stream().map(id -> "https://store.steampowered.com/app/" + id.toString()).toList();
+        List<Integer> gamesIds = this.websiteRepository.findGamesByUrls(steamUrls);
+        List<Game> games = this.gameRepository.findAllById(gamesIds);
+        List<Collection> collections = games.stream().map(game -> new Collection(User.getCurrentUser(), game, CollectionStatus.PLAYED)).toList();
+        this.collectionRepository.saveAll(collections);
     }
 
     // TODO This endpoint needs revision
@@ -158,9 +135,9 @@ public class GameController {
     Returns a list of IGDB IDs games list given a Steam user ID
     */
     @GetMapping("/steamgames/{userSteamId}")
-    public List<Integer> getSteamGames(@PathVariable Long userSteamId) throws JsonProcessingException {
+    public void getSteamGames(@PathVariable Long userSteamId) throws JsonProcessingException {
         List<Integer> steamAppIds = this.getSteamAppIds(userSteamId);
-        return this.getIgdbGamesIdsFromSteam(steamAppIds);
+        this.getIgdbGamesIdsFromSteam(steamAppIds);
     }
 
     /*

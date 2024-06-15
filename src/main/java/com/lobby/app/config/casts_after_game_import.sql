@@ -47,3 +47,17 @@ ALTER TABLE game
     ALTER COLUMN aggregated_rating
         SET DATA TYPE decimal
         USING aggregated_rating::decimal;
+
+ALTER TABLE game
+    ALTER COLUMN videos
+        SET DATA TYPE integer[]
+        USING videos::integer[];
+
+ALTER TABLE game
+    ALTER COLUMN screenshots
+        SET DATA TYPE integer[]
+        USING screenshots::integer[];
+
+ALTER TABLE game
+    ADD CONSTRAINT game_pk
+        PRIMARY KEY (id);
