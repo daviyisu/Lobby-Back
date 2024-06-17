@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lobby.app.config.Key;
+import com.lobby.app.exception.SteamPrivateAccountException;
 import com.lobby.app.model.*;
 import com.lobby.app.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 
@@ -35,15 +35,11 @@ public class GameController {
 
     private final CoverRepository coverRepository;
 
-    private static final String STEAM_API_BASE = "https://api.steampowered.com";
-
-    private static final String IGDB_API_BASE = "https://api.igdb.com/v4/";
-
-    private static final String STEAM_URL_BASE = "https://store.steampowered.com/app/";
-
     private static final String STEAM_API_KEY = Key.steamApiKey;
 
-    private final WebClient.Builder webClientBuilder;
+    private final WebClient webClient;
+
+    private final ObjectMapper objectMapper;
 
     @Autowired
     public GameController(GameRepository gameRepository,
@@ -51,34 +47,46 @@ public class GameController {
                           PlatformRepository platformRepository,
                           WebClient.Builder webClientBuilder,
                           CollectionRepository collectionRepository,
-                          CoverRepository coverRepository
+                          CoverRepository coverRepository,
+                          ObjectMapper objectMapper
     ) {
         this.gameRepository = gameRepository;
         this.websiteRepository = websiteRepository;
         this.platformRepository = platformRepository;
-        this.webClientBuilder = webClientBuilder;
+        this.webClient = webClientBuilder.build();
         this.collectionRepository = collectionRepository;
         this.coverRepository = coverRepository;
+        this.objectMapper = objectMapper;
     }
 
     /*
     Extract a list of Steam IDs games list given a Steam user ID
     */
-    private List<Integer> getSteamAppIds(Long userSteamId) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        assert webClientBuilder != null;
-        String jsonResponse = webClientBuilder.build()
-                .get()
-                .uri(STEAM_API_BASE + "/IPlayerService/GetOwnedGames/v0001/?key="
-                        + STEAM_API_KEY
-                        + "&steamid=" + userSteamId
-                        + "&include_appinfo=true&format=json")
-                .retrieve().bodyToMono(String.class).block();
-        JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+    private List<Integer> getSteamAppIds(Long userSteamId) throws JsonProcessingException, SteamPrivateAccountException {
+        String steamResponse = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("https")
+                        .host("api.steampowered.com")
+                        .path("/IPlayerService/GetOwnedGames/v0001/")
+                        .queryParam("key", STEAM_API_KEY)
+                        .queryParam("steamid", userSteamId)
+                        .queryParam("include_appinfo", true)
+                        .queryParam("format", "json")
+                        .build())
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        JsonNode jsonNode = objectMapper.readTree(steamResponse);
+       JsonNode gamesArray = jsonNode.path("response").path("games");
         List<Integer> result = new ArrayList<>();
-        JsonNode gamesArray = jsonNode.get("response").get("games");
-        for (int i = 0; i < gamesArray.size(); i++) {
-            result.add(gamesArray.get(i).get("appid").asInt());
+        if (gamesArray.isArray()) {
+            for (JsonNode game : gamesArray) {
+                result.add(game.path("appid").asInt());
+            }
+        }
+        if (result.isEmpty()) {
+            throw new SteamPrivateAccountException();
         }
         return result;
     }
@@ -86,7 +94,7 @@ public class GameController {
     /*
     Extract a list of the equivalent IGDB games IDs from a Steam IDs games list
     */
-    private void getIgdbGamesIdsFromSteam(List<Integer> steamAppIds) throws JsonProcessingException {
+    private void getIgdbGamesIdsFromSteam(List<Integer> steamAppIds) {
         List<String> steamUrls = steamAppIds.stream().map(id -> "https://store.steampowered.com/app/" + id.toString()).toList();
         List<Integer> gamesIds = this.websiteRepository.findGamesByUrls(steamUrls);
         List<Game> games = this.gameRepository.findAllById(gamesIds);
@@ -110,7 +118,7 @@ public class GameController {
     }
 
     @GetMapping("usergames")
-    public List<Game> getUserGames() throws Exception {
+    public List<Game> getUserGames() {
         List<Game> result = new ArrayList<>();
         List<Collection> userGamesIds = this.collectionRepository.findAllByUser(User.getCurrentUser());
         if (!userGamesIds.isEmpty()) {
@@ -132,10 +140,10 @@ public class GameController {
     }
 
     /*
-    Returns a list of IGDB IDs games list given a Steam user ID
+    Add all the steam games of this account (if public) to the user collection
     */
-    @GetMapping("/steamgames/{userSteamId}")
-    public void getSteamGames(@PathVariable Long userSteamId) throws JsonProcessingException {
+    @PostMapping("/steamgames/{userSteamId}")
+    public void syncSteamGames(@PathVariable Long userSteamId) throws JsonProcessingException, SteamPrivateAccountException {
         List<Integer> steamAppIds = this.getSteamAppIds(userSteamId);
         this.getIgdbGamesIdsFromSteam(steamAppIds);
     }
