@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lobby.app.config.Key;
 import com.lobby.app.exception.SteamPrivateAccountException;
 import com.lobby.app.model.*;
+import com.lobby.app.model.Collection;
 import com.lobby.app.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -15,10 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -92,13 +91,20 @@ public class GameController {
     }
 
     /*
-    Extract a list of the equivalent IGDB games IDs from a Steam IDs games list
+    Search games in the database by it Steam app ID and adds it to the current user collection
     */
     private void getIgdbGamesIdsFromSteam(List<Integer> steamAppIds) {
         List<String> steamUrls = steamAppIds.stream().map(id -> "https://store.steampowered.com/app/" + id.toString()).toList();
         List<Integer> gamesIds = this.websiteRepository.findGamesByUrls(steamUrls);
-        List<Game> games = this.gameRepository.findAllById(gamesIds);
-        List<Collection> collections = games.stream().map(game -> new Collection(User.getCurrentUser(), game, CollectionStatus.PLAYED)).toList();
+        List<Collection> userCurrentCollection = this.collectionRepository.findAllByUser(User.getCurrentUser());
+        Set<Integer> existingGameIds = userCurrentCollection.stream()
+                .map(collection -> collection.getGame().getId())
+                .collect(Collectors.toSet());
+        List<Game> games = this.gameRepository.findAllByIdOrCategoryZero(gamesIds);
+        List<Game> newGamesToAdd = games.stream()
+                .filter(game -> !existingGameIds.contains(game.getId()))
+                .toList();
+        List<Collection> collections = newGamesToAdd.stream().map(game -> new Collection(User.getCurrentUser(), game, CollectionStatus.PLAYED)).toList();
         this.collectionRepository.saveAll(collections);
     }
 
