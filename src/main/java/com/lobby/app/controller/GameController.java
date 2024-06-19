@@ -61,7 +61,7 @@ public class GameController {
     /*
     Extract a list of Steam IDs games list given a Steam user ID
     */
-    private List<Integer> getSteamAppIds(Long userSteamId) throws JsonProcessingException, SteamPrivateAccountException {
+    private List<Integer> getSteamAppIds(String userSteamId) throws JsonProcessingException, SteamPrivateAccountException {
         String steamResponse = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
@@ -148,9 +148,9 @@ public class GameController {
     /*
     Add all the steam games of this account (if public) to the user collection
     */
-    @PostMapping("/steamgames/{userSteamId}")
-    public void syncSteamGames(@PathVariable Long userSteamId) throws JsonProcessingException, SteamPrivateAccountException {
-        List<Integer> steamAppIds = this.getSteamAppIds(userSteamId);
+    @PostMapping("/steamgames")
+    public void syncSteamGames(@RequestBody SteamSyncRequest userSteamId) throws JsonProcessingException, SteamPrivateAccountException {
+        List<Integer> steamAppIds = this.getSteamAppIds(userSteamId.getSteamId());
         this.getIgdbGamesIdsFromSteam(steamAppIds);
     }
 
