@@ -36,4 +36,20 @@ public class UserControllerExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body("Invalid register credentials");
     }
+
+    @ExceptionHandler(SteamPrivateAccountException.class)
+    public ResponseEntity<Object> steamPrivateAccountException(SteamPrivateAccountException e) {
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, e.getMessage(), e);
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body("Steam account must be public");
+    }
+
+    @ExceptionHandler(SteamAccountDoesNotExistsException.class)
+    public ResponseEntity<Object> steamAccountDoesNotExistsException(SteamAccountDoesNotExistsException e) {
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, e.getMessage(), e);
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body("Steam account not found");
+    }
 }

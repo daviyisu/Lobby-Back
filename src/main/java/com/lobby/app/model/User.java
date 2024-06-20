@@ -30,6 +30,9 @@ public class User implements UserDetails {
     private String username;
     private String password;
 
+    @Column(name = "avatar_url")
+    private String avatar_url;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("Logged"));

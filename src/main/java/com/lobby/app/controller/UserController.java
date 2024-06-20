@@ -5,7 +5,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lobby.app.config.Key;
+import com.lobby.app.exception.SteamAccountDoesNotExistsException;
+import com.lobby.app.exception.SteamPrivateAccountException;
 import com.lobby.app.model.SteamUser;
+import com.lobby.app.model.UpdateAvatarRequest;
 import com.lobby.app.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -78,7 +81,7 @@ public class UserController {
     }
 
     @GetMapping("/steam_data/{steamUserId}")
-    public SteamUser getSteamUserData(@PathVariable String steamUserId) throws JsonProcessingException {
+    public SteamUser getSteamUserData(@PathVariable String steamUserId) throws JsonProcessingException, SteamPrivateAccountException, SteamAccountDoesNotExistsException {
         String steamResponse = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
@@ -94,11 +97,26 @@ public class UserController {
         JsonNode jsonNode = objectMapper.readTree(steamResponse);
         JsonNode userDataJson = jsonNode.path("response").path("players");
 
+        if (userDataJson.isEmpty()) {
+            throw new SteamAccountDoesNotExistsException();
+        }
+
+        if (userDataJson.path(0).path("communityvisibilitystate").asInt() == -1) {
+            throw new SteamPrivateAccountException();
+        }
+
         return new SteamUser(
                 userDataJson.path(0).path("steamid").asText(),
                 userDataJson.path(0).path("personaname").asText(),
                 userDataJson.path(0).path("avatarmedium").asText(),
                 userDataJson.path(0).path("communityvisibilitystate").asInt()
         );
+    }
+
+    @PostMapping("/avatar")
+    public void uploadAvatar(@RequestBody UpdateAvatarRequest request) {
+        User user = User.getCurrentUser();
+        user.setAvatar_url(request.getAvatarUrl());
+        this.userRepository.save(user);
     }
 }
