@@ -15,8 +15,9 @@ public class ReviewDTO {
     private final Integer rating;
     private final Date createdAt;
     private final String writtenBy;
+    private final String userAvatar;
 
-    public ReviewDTO(Integer id, Integer userId, Integer gameId, String reviewText, String summary, Integer likes, Integer rating, Date createdAt, String writtenBy) {
+    public ReviewDTO(Integer id, Integer userId, Integer gameId, String reviewText, String summary, Integer likes, Integer rating, Date createdAt, String writtenBy, String userAvatar) {
         this.id = id;
         this.userId = userId;
         this.gameId = gameId;
@@ -26,5 +27,6 @@ public class ReviewDTO {
         this.rating = rating;
         this.createdAt = createdAt;
         this.writtenBy = writtenBy;
+        this.userAvatar = userAvatar;
     }
 }
