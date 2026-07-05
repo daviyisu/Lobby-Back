@@ -1,4 +1,4 @@
-version: '3.1'
+name: lobby
 services:
   pgsql:
     container_name: pgsql

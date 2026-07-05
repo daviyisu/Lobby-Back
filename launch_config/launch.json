@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Lobby App (Spring Boot)",
+            "request": "launch",
+            "mainClass": "com.lobby.app.AppApplication",
+            "projectName": "app"
+        }
+    ]
+}
